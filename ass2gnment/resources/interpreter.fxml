@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane
+        xmlns="http://javafx.com/javafx/17"
+        xmlns:fx="http://javafx.com/fxml"
+        fx:controller="view.gui.InterpreterController">
+
+    <top>
+        <HBox spacing="10">
+            <Label text="PrgStates:"/>
+            <TextField fx:id="nrPrgStates" editable="false"/>
+            <Button text="Run one step" onAction="#handleRunOneStep"/>
+        </HBox>
+    </top>
+
+    <center>
+        <SplitPane>
+
+            <VBox>
+                <Label text="Heap"/>
+                <TableView fx:id="heapTable"/>
+            </VBox>
+
+            <VBox>
+                <Label text="Output"/>
+                <ListView fx:id="outList"/>
+            </VBox>
+
+            <VBox>
+                <Label text="Program IDs"/>
+                <ListView fx:id="prgIdList"/>
+            </VBox>
+
+        </SplitPane>
+    </center>
+
+</BorderPane>
