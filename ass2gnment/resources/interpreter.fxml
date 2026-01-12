@@ -21,7 +21,12 @@
 
             <VBox>
                 <Label text="Heap"/>
-                <TableView fx:id="heapTable"/>
+                <TableView fx:id="heapTable">
+                    <columns>
+                        <TableColumn fx:id="heapAddrCol" text="Address"/>
+                        <TableColumn fx:id="heapValCol" text="Value"/>
+                    </columns>
+                </TableView>
             </VBox>
 
             <VBox>
@@ -32,6 +37,21 @@
             <VBox>
                 <Label text="Program IDs"/>
                 <ListView fx:id="prgIdList"/>
+            </VBox>
+
+            <VBox>
+                <Label text="SymTable"/>
+                <TableView fx:id="symTable">
+                    <columns>
+                        <TableColumn fx:id="symVarCol" text="Variable"/>
+                        <TableColumn fx:id="symValCol" text="Value"/>
+                    </columns>
+                </TableView>
+            </VBox>
+
+            <VBox>
+                <Label text="ExeStack"/>
+                <ListView fx:id="exeStackList"/>
             </VBox>
 
         </SplitPane>

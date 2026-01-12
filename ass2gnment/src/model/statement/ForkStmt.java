@@ -20,7 +20,7 @@ public class ForkStmt implements IStmt {
     @Override
     public PrgState execute(PrgState state) {
         IStack<IStmt> newStack = new MyStack<>();
-        newStack.push(stmt);
+        //newStack.push(stmt);
 
         IDict<String, IValue> newSymTable = state.getSymTable().deepCopy();
 

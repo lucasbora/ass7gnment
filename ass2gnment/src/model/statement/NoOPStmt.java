@@ -8,7 +8,7 @@ import utils.IDict;
 public class NoOPStmt implements IStmt {
     @Override
     public PrgState execute(PrgState prg) throws MyException {
-        return prg;
+        return null;
     }
 
     @Override

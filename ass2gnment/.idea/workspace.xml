@@ -120,6 +120,7 @@
     "Application.Main.executor": "Run",
     "Application.Main3.executor": "Run",
     "Application.Main5.executor": "Run",
+    "Application.MainFX.executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
@@ -129,7 +130,8 @@
     "onboarding.tips.debug.path": "C:/MAP/ass2gnment/src/Main.java",
     "project.structure.last.edited": "Libraries",
     "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.0"
+    "project.structure.side.proportion": "0.0",
+    "settings.editor.selected.configurable": "inlay.hints"
   }
 }]]></component>
   <component name="RecentsManager">
@@ -141,9 +143,10 @@
   </component>
   <component name="RunManager">
     <configuration name="Main" type="Application" factoryName="Application">
-      <option name="MAIN_CLASS_NAME" value="view.Main3" />
+      <option name="MAIN_CLASS_NAME" value="view.gui.MainFX" />
       <module name="ass2gnment" />
-      <option name="VM_PARAMETERS" value="--module-path &quot;C:\Users\boral\Downloads\openjfx-25.0.1_windows-x64_bin-sdk&quot; --add-modules javafx.controls,javafx.fxml" />
+      <option name="PROGRAM_PARAMETERS" value="--module-path C:\Users\boral\Downloads\openjfx-25.0.1_windows-x64_bin-sdk\javafx-sdk-25.0.1\lib --add-modules javafx.controls,javafx.fxml " />
+      <option name="VM_PARAMETERS" value="--module-path C:\Users\boral\Downloads\openjfx-25.0.1_windows-x64_bin-sdk\javafx-sdk-25.0.1\lib --add-modules javafx.controls,javafx.fxml " />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>

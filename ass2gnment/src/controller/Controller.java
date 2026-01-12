@@ -66,35 +66,74 @@ public class Controller {
 //        return currentStmt.execute(prg);
 //    }
 
-    public void oneStepForAllPrg(List<PrgState> prgList) throws MyException {
-        prgList.forEach(prg -> {
-            try {
-                repo.logPrgStateExec(prg);
-            } catch (MyException e) {
-                throw new RuntimeException(e);
-            }
-        });
+//    public void oneStepForAllPrg(List<PrgState> prgList) throws MyException {
+//        prgList.forEach(prg -> {
+//            try {
+//                repo.logPrgStateExec(prg);
+//            } catch (MyException e) {
+//                throw new RuntimeException(e);
+//            }
+//        });
+//
+//        List<Callable<PrgState>> callList = prgList.stream()
+//                .map(prg -> (Callable<PrgState>) prg::oneStep)
+//                .toList();
+//
+//        try {
+//            List<PrgState> newPrgList = executor.invokeAll(callList).stream()
+//                    .map(f -> {
+//                        try { return f.get(); }
+//                        catch (Exception e) { return null; }
+//                    })
+//                    .filter(Objects::nonNull)
+//                    .toList();
+//
+//            prgList.addAll(newPrgList);
+//            repo.setPrgList(prgList);
+//
+//        } catch (InterruptedException e) {
+//            throw new MyException("Execution error");
+//        }
+//    }
+
+
+    public void oneStepForAllPrg() throws InterruptedException { // pt GUI
+        //executor = Executors.newFixedThreadPool(2);
+
+        if (executor == null || executor.isShutdown()) {
+            executor = Executors.newFixedThreadPool(2);
+        }
+        List<PrgState> prgList = removeCompletedPrg(repo.getPrgList());
 
         List<Callable<PrgState>> callList = prgList.stream()
-                .map(prg -> (Callable<PrgState>) prg::oneStep)
+                .map((PrgState p) -> (Callable<PrgState>) p::oneStep)
                 .toList();
 
-        try {
-            List<PrgState> newPrgList = executor.invokeAll(callList).stream()
-                    .map(f -> {
-                        try { return f.get(); }
-                        catch (Exception e) { return null; }
-                    })
-                    .filter(Objects::nonNull)
-                    .toList();
+        List<PrgState> newPrgList = executor.invokeAll(callList).stream()
+                .map(future -> {
+                    try {
+                        return future.get();
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .filter(p -> p != null)
+                .toList();
 
-            prgList.addAll(newPrgList);
-            repo.setPrgList(prgList);
+        prgList.addAll(newPrgList);
+        repo.setPrgList(prgList);
 
-        } catch (InterruptedException e) {
-            throw new MyException("Execution error");
-        }
+        Map<Integer, IValue> heap = prgList.get(0).getHeap().getContent();
+
+        List<Integer> usedAddresses = getAllReachableAddresses(prgList);
+
+        prgList.get(0).getHeap().setContent(
+                unsafeGarbageCollector(usedAddresses, heap)
+        );
+
+        executor.shutdownNow();
     }
+
 
     private List<Integer> getAllReachableAddresses(List<PrgState> prgList) {
         return prgList.stream()
@@ -155,7 +194,8 @@ public class Controller {
 //            repo.logPrgStateExec(); // log after each step
 //        }
 //    }
-    public void allSteps() throws MyException {
+
+    public void allSteps() throws MyException, InterruptedException {
         executor = Executors.newFixedThreadPool(2);
 
         List<PrgState> prgList = removeCompletedPrg(repo.getPrgList());
@@ -177,44 +217,59 @@ public class Controller {
                     )
             );
 
-            oneStepForAllPrg(prgList);
+            //oneStepForAllPrg(prgList);
+            oneStepForAllPrg();
             prgList = removeCompletedPrg(repo.getPrgList());
         }
 
         executor.shutdownNow();
         repo.setPrgList(prgList);
     }
+//public void allSteps() throws MyException { // ALA BUN!
+//    executor = Executors.newFixedThreadPool(2);
+//
+//    List<PrgState> prgList = removeCompletedPrg(repo.getPrgList());
+//
+//    while (!prgList.isEmpty()) {
+//
+//        // 1️⃣ Compute reachable addresses from ALL symbol tables
+//        List<Integer> reachableAddresses = getAllReachableAddresses(prgList);
+//
+//        // 2️⃣ Apply GC ONCE (heap is shared)
+//        Map<Integer, IValue> newHeap =
+//                unsafeGarbageCollector(
+//                        reachableAddresses,
+//                        prgList.get(0).getHeap().getContent()
+//                );
+//
+//        prgList.forEach(prg -> prg.getHeap().setContent(newHeap));
+//
+//        // 3️⃣ Execute one step for all programs
+//        oneStepForAllPrg(prgList);
+//
+//        prgList.forEach(prg -> {
+//            try {
+//                repo.logPrgStateExec(prg);
+//            } catch (MyException e) {
+//                throw new RuntimeException(e);
+//            }
+//        });
+//
+//        // 4️⃣ Remove completed programs AFTER stepping
+//        prgList = removeCompletedPrg(repo.getPrgList());
+//    }
+//
+//    executor.shutdownNow();
+//    repo.setPrgList(prgList);
+//}
 
 
 
     public void setDisplayFlag(boolean displayFlag) {
         this.displayFlag = displayFlag;
     }
-}
 
-public class ProgramChooserController {
-    @FXML private ListView<String> programList;
-
-    private List<IStmt> programs;
-
-    public void setPrograms(List<IStmt> programs) {
-        this.programs = programs;
-        programList.getItems().setAll(
-                programs.stream().map(IStmt::toString).toList()
-        );
-    }
-
-    @FXML
-    void handleSelect() {
-        int index = programList.getSelectionModel().getSelectedIndex();
-        if (index < 0) return;
-
-        IStmt selected = programs.get(index);
-
-        // build PrgState + Controller
-        PrgState prg = ProgramBuilder.build(selected);
-        Controller ctrl = new Controller(new Repository(prg, "log.txt"));
-
-        InterpreterWindow.open(ctrl);
+    public IRepository getRepo() {
+        return repo;
     }
 }
